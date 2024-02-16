@@ -1,57 +1,93 @@
-import React, {
+import {
   Dispatch,
   SetStateAction,
   useState,
   DragEvent,
   FormEvent,
+  useEffect,
 } from "react";
 import { FiPlus, FiTrash } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { FaFire } from "react-icons/fa";
+import axios from "axios";
+import BarPoll from "./BarPoll";
 
 export const CustomKanban = () => {
   return (
     <div className="h-screen w-full bg-neutral-900 text-neutral-50">
-      <Board />
+      {/* <Board /> */}
     </div>
   );
 };
 
 const Board = () => {
-  const [cards, setCards] = useState(DEFAULT_CARDS);
+  const [cards, setCards] = useState<CardType[]>([]);
+  console.log(cards);
+
+  useEffect(() => {
+    const fetchAllTodos = async () => {
+      try {
+        const token = localStorage.getItem("todo_token");
+        const res = await axios.get("http://localhost:3000/todo", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const updatedCards = res.data.map((todo: any) => ({
+          title: todo.title,
+          id: todo.id,
+          column: todo.column as ColumnType,
+        }));
+
+        setCards(updatedCards);
+      } catch (err: any) {
+        console.log(err.response.data);
+      }
+    };
+
+    fetchAllTodos();
+  }, []);
 
   return (
-    <div className="flex h-full w-full gap-3 overflow-scroll p-12">
-      <Column
-        title="Backlog"
-        column="backlog"
-        headingColor="text-neutral-500"
-        cards={cards}
-        setCards={setCards}
-      />
-      <Column
-        title="TODO"
-        column="todo"
-        headingColor="text-yellow-200"
-        cards={cards}
-        setCards={setCards}
-      />
-      <Column
-        title="In progress"
-        column="doing"
-        headingColor="text-blue-200"
-        cards={cards}
-        setCards={setCards}
-      />
-      <Column
-        title="Complete"
-        column="done"
-        headingColor="text-emerald-200"
-        cards={cards}
-        setCards={setCards}
-      />
-      <BurnBarrel setCards={setCards} />
-    </div>
+    <>
+      {" "}
+      <div>
+        <h1 className="text-center text-3xl">All your todos!</h1>
+      </div>
+      <div className="flex justify-center h-full w-full gap-3 p-12">
+        {/* <BarPoll /> */}
+        <Column
+          title="Backlog"
+          column="backlog"
+          headingColor="text-neutral-500"
+          cards={cards}
+          setCards={setCards}
+        />
+        <Column
+          title="TODO"
+          column="todo"
+          headingColor="text-yellow-200"
+          cards={cards}
+          setCards={setCards}
+        />
+        <Column
+          title="In progress"
+          column="doing"
+          headingColor="text-blue-200"
+          cards={cards}
+          setCards={setCards}
+        />
+        <Column
+          title="Complete"
+          column="done"
+          headingColor="text-emerald-200"
+          cards={cards}
+          setCards={setCards}
+        />
+        <BurnBarrel setCards={setCards} />
+      </div>
+    </>
   );
 };
 
@@ -88,6 +124,24 @@ const Column = ({
     const before = element.dataset.before || "-1";
 
     if (before !== cardId) {
+      const updateTodo = async () => {
+        try {
+          const token = localStorage.getItem("todo_token");
+          const response = await axios.patch(
+            `http://localhost:3000/todo/${cardId}`,
+            { column: column },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          console.log(response.data);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      updateTodo();
       let copy = [...cards];
 
       let cardToTransfer = copy.find((c) => c.id === cardId);
@@ -255,6 +309,26 @@ const BurnBarrel = ({
 
   const handleDragEnd = (e: DragEvent) => {
     const cardId = e.dataTransfer.getData("cardId");
+    console.log(cardId);
+
+    const delteTodo = async () => {
+      try {
+        const token = localStorage.getItem("todo_token");
+        const response = await axios.delete(
+          `http://localhost:3000/todo/${cardId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    delteTodo();
 
     setCards((pv) => pv.filter((c) => c.id !== cardId));
 
@@ -294,8 +368,28 @@ const AddCard = ({ column, setCards }: AddCardProps) => {
     const newCard = {
       column,
       title: text.trim(),
-      id: Math.random().toString(),
+      // id: Math.random().toString(),
     };
+
+    const createTodo = async () => {
+      try {
+        const token = localStorage.getItem("todo_token");
+        const response = await axios.post(
+          `http://localhost:3000/todo/create`,
+          newCard,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    createTodo();
 
     setCards((pv) => [...pv, newCard]);
 
@@ -349,13 +443,5 @@ type CardType = {
   id: string;
   column: ColumnType;
 };
-
-const DEFAULT_CARDS: CardType[] = [
-  {
-    column: "doing",
-    title: "test tdod",
-    id: "65ce240eb9f80d4f4beb3c6c",
-  },
-];
 
 export default Board;
