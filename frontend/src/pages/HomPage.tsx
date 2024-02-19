@@ -1,12 +1,18 @@
 import axios from "axios";
 import React, { createContext, useEffect } from "react";
 import Board from "../components/Board";
-import BarPoll from "../components/BarPoll";
+import { useNavigate } from "react-router-dom";
 
 export const TodoContext = createContext({});
 
 const HomePage: React.FC = () => {
-  let backlogCount = 0;
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("todo_token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, []);
   const fetchAllTodos = async () => {
     try {
       const token = localStorage.getItem("todo_token");
@@ -39,12 +45,16 @@ const HomePage: React.FC = () => {
     fetchAllTodos();
   }, []);
   return (
-    <TodoContext.Provider value={{ fetchAllTodos }}>
-      <div className="bg-neutral-900">
+    // <TodoContext.Provider value={{ fetchAllTodos }}>
+    <div className="bg-neutral-900">
+      <div>
+        {/* <BarPoll /> */}
         <Board />
-        <BarPoll />
       </div>
-    </TodoContext.Provider>
+
+      {/* <BarPoll /> */}
+    </div>
+    // </TodoContext.Provider>
   );
 };
 

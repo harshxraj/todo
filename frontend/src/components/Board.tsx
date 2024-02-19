@@ -10,7 +10,6 @@ import { FiPlus, FiTrash } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { FaFire } from "react-icons/fa";
 import axios from "axios";
-import BarPoll from "./BarPoll";
 
 export const CustomKanban = () => {
   return (
@@ -53,10 +52,13 @@ const Board = () => {
     <>
       {" "}
       <div>
-        <h1 className="text-center text-3xl">All your todos!</h1>
+        <h1 className="text-center text-3xl italic font-medium pt-12">
+          All your todos!
+        </h1>
       </div>
       <div className="flex justify-center h-full w-full gap-3 p-12">
         {/* <BarPoll /> */}
+
         <Column
           title="Backlog"
           column="backlog"
@@ -329,9 +331,7 @@ const BurnBarrel = ({
     };
 
     delteTodo();
-
     setCards((pv) => pv.filter((c) => c.id !== cardId));
-
     setActive(false);
   };
 
