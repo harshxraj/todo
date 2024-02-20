@@ -121,13 +121,14 @@ const Column = ({
   const [active, setActive] = useState(false);
 
   // const handleDragStart = (e: DragEvent, card: CardType) => {
+  //   console.log(card);
+
   //   e.dataTransfer.setData("cardId", card.id);
   // };
   const handleDragStart = (e: DragEvent, card: CardType) => {
     if (card.id !== undefined) {
       e.dataTransfer.setData("cardId", card.id);
     } else {
-      // Handle the case where card.id is undefined
       console.error("Card ID is undefined.");
     }
   };
@@ -390,7 +391,7 @@ const AddCard = ({ column, setCards }: AddCardProps) => {
     const createTodo = async () => {
       try {
         const token = localStorage.getItem("todo_token");
-        await axios.post(
+        const response = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/todo/create`,
           newCard,
           {
@@ -399,14 +400,18 @@ const AddCard = ({ column, setCards }: AddCardProps) => {
             },
           }
         );
+        const newCardId = response.data.newTodo._id;
+        // console.log(newCardId);
+
+        const updatedNewCardWithId = { ...newCard, id: newCardId };
+
+        setCards((prevCards) => [...prevCards, updatedNewCardWithId]);
       } catch (error) {
         console.log(error);
       }
     };
+
     createTodo();
-
-    setCards((pv) => [...pv, newCard]);
-
     setAdding(false);
   };
 
