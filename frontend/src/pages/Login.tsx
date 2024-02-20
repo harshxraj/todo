@@ -88,10 +88,10 @@ const Content = () => {
 
           success: {
             duration: 3000,
-            theme: {
-              primary: "green",
-              secondary: "black",
-            },
+            // theme: {
+            //   primary: "green",
+            //   secondary: "black",
+            // },
           },
         }}
       />

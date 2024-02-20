@@ -16,7 +16,7 @@ const HomePage: React.FC = () => {
   const fetchAllTodos = async () => {
     try {
       const token = localStorage.getItem("todo_token");
-      let res = await axios.get(`${import.meta.env.VITE_BASE_URL}/todo`, {
+      await axios.get(`${import.meta.env.VITE_BASE_URL}/todo`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

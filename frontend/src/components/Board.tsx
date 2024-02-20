@@ -120,8 +120,16 @@ const Column = ({
 }: ColumnProps) => {
   const [active, setActive] = useState(false);
 
+  // const handleDragStart = (e: DragEvent, card: CardType) => {
+  //   e.dataTransfer.setData("cardId", card.id);
+  // };
   const handleDragStart = (e: DragEvent, card: CardType) => {
-    e.dataTransfer.setData("cardId", card.id);
+    if (card.id !== undefined) {
+      e.dataTransfer.setData("cardId", card.id);
+    } else {
+      // Handle the case where card.id is undefined
+      console.error("Card ID is undefined.");
+    }
   };
 
   const handleDragEnd = (e: DragEvent) => {
@@ -289,7 +297,7 @@ const Card = ({ title, id, column, handleDragStart }: CardProps) => {
 };
 
 type DropIndicatorProps = {
-  beforeId: string | null;
+  beforeId?: string | null;
   column: string;
 };
 
@@ -382,7 +390,7 @@ const AddCard = ({ column, setCards }: AddCardProps) => {
     const createTodo = async () => {
       try {
         const token = localStorage.getItem("todo_token");
-        const response = await axios.post(
+        await axios.post(
           `${import.meta.env.VITE_BASE_URL}/todo/create`,
           newCard,
           {
@@ -446,7 +454,7 @@ type ColumnType = "backlog" | "todo" | "doing" | "done";
 
 type CardType = {
   title: string;
-  id: string;
+  id?: string;
   column: ColumnType;
 };
 
