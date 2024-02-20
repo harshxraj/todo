@@ -52,10 +52,12 @@ const Content = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Signing up with:", formData);
     try {
-      let res = await axios.post("http://localhost:3000/auth/signin", formData);
-      console.log(res.data);
+      let res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/auth/signin`,
+        formData
+      );
+      // console.log(res.data);
       navigate("/");
       localStorage.setItem("todo_token", res.data.access_token);
     } catch (err: any) {
@@ -125,7 +127,7 @@ const Content = () => {
         <div className="text-right">
           <Link to="/register">
             <p className="hover:cursor-pointer hover:underline">
-              Already have a account?
+              Need a new account?
             </p>
           </Link>
         </div>

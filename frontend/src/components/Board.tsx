@@ -10,6 +10,8 @@ import { FiPlus, FiTrash } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { FaFire } from "react-icons/fa";
 import axios from "axios";
+import { CiLogout } from "react-icons/ci";
+import { useNavigate } from "react-router-dom";
 
 export const CustomKanban = () => {
   return (
@@ -21,13 +23,13 @@ export const CustomKanban = () => {
 
 const Board = () => {
   const [cards, setCards] = useState<CardType[]>([]);
-  console.log(cards);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAllTodos = async () => {
       try {
         const token = localStorage.getItem("todo_token");
-        const res = await axios.get("http://localhost:3000/todo", {
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/todo`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -48,13 +50,21 @@ const Board = () => {
     fetchAllTodos();
   }, []);
 
+  const logout = () => {
+    localStorage.removeItem("todo_token");
+    navigate("/login");
+  };
+
   return (
     <>
       {" "}
-      <div>
-        <h1 className="text-center text-3xl italic font-medium pt-12">
+      <div className="flex justify-between items-center mt-12">
+        <h1 className="text-center text-3xl italic font-medium flex-grow">
           All your todos!
         </h1>
+        <span onClick={logout} className="pr-4 hover:cursor-pointer">
+          <CiLogout size={30} />
+        </span>
       </div>
       <div className="flex justify-center h-full w-full gap-3 p-12">
         {/* <BarPoll /> */}
@@ -130,7 +140,7 @@ const Column = ({
         try {
           const token = localStorage.getItem("todo_token");
           const response = await axios.patch(
-            `http://localhost:3000/todo/${cardId}`,
+            `${import.meta.env.VITE_BASE_URL}/todo/${cardId}`,
             { column: column },
             {
               headers: {
@@ -311,13 +321,12 @@ const BurnBarrel = ({
 
   const handleDragEnd = (e: DragEvent) => {
     const cardId = e.dataTransfer.getData("cardId");
-    console.log(cardId);
 
     const delteTodo = async () => {
       try {
         const token = localStorage.getItem("todo_token");
         const response = await axios.delete(
-          `http://localhost:3000/todo/${cardId}`,
+          `${import.meta.env.VITE_BASE_URL}/todo/${cardId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -368,14 +377,13 @@ const AddCard = ({ column, setCards }: AddCardProps) => {
     const newCard = {
       column,
       title: text.trim(),
-      // id: Math.random().toString(),
     };
 
     const createTodo = async () => {
       try {
         const token = localStorage.getItem("todo_token");
         const response = await axios.post(
-          `http://localhost:3000/todo/create`,
+          `${import.meta.env.VITE_BASE_URL}/todo/create`,
           newCard,
           {
             headers: {
@@ -383,8 +391,6 @@ const AddCard = ({ column, setCards }: AddCardProps) => {
             },
           }
         );
-
-        console.log(response.data);
       } catch (error) {
         console.log(error);
       }
